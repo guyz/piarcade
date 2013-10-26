@@ -130,7 +130,7 @@ for (i=0; i<N_MCP_ROWS; i++) {
       x = !(ival[i] & (1 << j)); /* is the pin high or low? */
       f = xval[i] & (1 << j); /* has the pin changed? */
       if (f) {
-        printf("Pin %d changed!\n", j)
+        printf("Pin %d changed!\n", j);
       }
     }
   }
