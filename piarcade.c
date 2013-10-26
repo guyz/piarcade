@@ -74,6 +74,7 @@ mcp_row mcp[N_MCP_ROWS];
 int q2w;
 
 void register_mcp_keys() {
+  int i;
   for (i=0; i<N_MCP_ROWS; i++) {
     mcp[i].inmask = 0;
   }
