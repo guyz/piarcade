@@ -132,10 +132,11 @@ for (i=0; i<N_MCP_ROWS; i++) {
       // pin is enabled
       x = !(ival[i] & (1 << j)); /* is the pin high or low? */
       f = xval[i] & (1 << j); /* has the pin changed? */
+      printf("Pin %d, x=%d, f=%d \n", j, x, f);
       if (f) {
         if (x) {
-          printf("Pin %d changed! - %d\n", j, x);
-          sendKey(mcp[i].key_char[j], x);
+          // printf("Pin %d changed! - %d\n", j, x);
+          // sendKey(mcp[i].key_char[j], x);
         }
       }
     }
