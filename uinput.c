@@ -31,8 +31,6 @@
 #include <errno.h>
 #include <linux/input.h>
 #include <linux/uinput.h>
-#include "config.h"
-#include "daemon.h"
 #include "uinput.h"
 
 static int sendRel(int dx, int dy);
@@ -40,7 +38,6 @@ static int sendSync(void);
 
 static struct input_event     uidev_ev;
 static int uidev_fd;
-static keyinfo_s lastkey;
 
 #define die(str, args...) do { \
         perror(str); \
@@ -93,48 +90,6 @@ int init_uinput(void)
   uidev_fd = fd;
 
   return 0;
-}
-
-int test_uinput(void)
-{
-  int                    dx, dy;
-  int                    i,k;
-
-  srand(time(NULL));
-
-  while(1) {
-    switch(rand() % 4) {
-    case 0:
-      dx = -10;
-      dy = -1;
-      break;
-    case 1:
-      dx = 10;
-      dy = 1;
-      break;
-    case 2:
-      dx = -1;
-      dy = 10;
-      break;
-    case 3:
-      dx = 1;
-      dy = -10;
-      break;
-    }
-
-    k = send_gpio_keys(21, 1);
-    sendKey(k, 0);
-
-    for(i = 0; i < 20; i++) {
-      //sendKey(KEY_D, 1);
-      //sendKey(KEY_D, 0);
-      sendRel(dx, dy);
-
-      usleep(15000);
-    }
-
-    sleep(10);
-  }
 }
 
 int close_uinput(void)
@@ -198,33 +153,3 @@ static int sendSync(void)
   return 0;
 }
 
-int send_gpio_keys(int gpio, int value)
-{
-  int k;
-  int xio;
-  restart_keys();
-  while( got_more_keys(gpio) ){
-    k = get_next_key(gpio);
-    if(is_xio(gpio) && value){ /* xio int-pin is active low */
-      xio = get_curr_xio_no();
-      poll_iic(xio);
-      last_iic_key(&lastkey);
-    }
-    else if(k<0x300){
-      sendKey(k, value);
-      if(value && got_more_keys(gpio)){
-	/* release the current key, so the next one can be pressed */
-	sendKey(k, 0);
-      }
-      lastkey.key = k;
-      lastkey.val = value;
-    }
-  }
-  return k;
-}
-
-void get_last_key(keyinfo_s *kp)
-{
-  kp->key = lastkey.key;
-  kp->val = lastkey.val;
-}
