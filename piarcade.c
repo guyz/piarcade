@@ -56,8 +56,8 @@ struct {
   int key;
 } io[] = {
 //    Input    Output (from /usr/include/linux/input.h)
-  { 0,      KEY_LEFT     },
-  {  1,      KEY_RIGHT    }
+  { 0,      1     },
+  {  1,      1    }
 };
 #define IOLEN (sizeof(io) / sizeof(io[0])) // io[] table size
 
