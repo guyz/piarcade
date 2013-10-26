@@ -135,8 +135,8 @@ for (i=0; i<N_MCP_ROWS; i++) {
       // printf("Pin %d, x=%d, f=%d \n", j, x, f);
       if (f) {
         if (x) {
-          printf("Pin %d changed! - %d\n", j, x);
-          // sendKey(mcp[i].key_char[j], x);
+          // printf("Pin %d changed! - %d\n", j, x);
+          sendKey(mcp[i].key_char[j], x);
         }
       }
     }
