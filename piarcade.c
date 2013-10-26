@@ -50,7 +50,7 @@
 
 #define BUTTON_PIN 0
 #define N_MCP_ROWS 2
-
+#define N_ROW_PINS 8
 struct {
   int pin; // 0-15, 0-7 is GPIOA, 8-15 is GPIOB
   int key;
@@ -66,26 +66,29 @@ typedef struct{
   int idx; // row idx, A=0, B=1
   int inmask;
   int lastvalue;
-  int *key_value[8]; // 0 or 1
+  int key_value[N_ROW_PINS]; // -1=unused, 0=low, 1=high
 } mcp_row;
 
 mcp_row mcp[N_MCP_ROWS];
 
 int q2w;
 
-void register_mcp_keys() {
+void register_mcp_keys() {  
   int i;
   for (i=0; i<N_MCP_ROWS; i++) {
     mcp[i].inmask = 0;
+    memset(mcp[i].key_value, -1, sizeof(mcp[i].key_value));
   }
 
   for(i=0; i<IOLEN; i++) {
     printf("Configuring pin %d\n", io[i].pin);
-    int idx = (floor(io[i].pin/8));
-    mcp[idx].inmask |= 1<<(io[i].pin % 8);
+    int idx = (floor(io[i].pin/N_ROW_PINS));
+    int pin = io[i].pin % N_ROW_PINS;
+    mcp[idx].inmask |= 1<<pin;
+    mcp[idx].key_value[pin] = 1; // default is high
   }
 
-  printf("Row A=%d, Row B=%d\n", mcp[0].inmask, mcp[0].inmask);
+  printf("Row A=%d, Row B=%d\n", mcp[0].inmask, mcp[1].inmask);
 }
 
 void myInterrupt5 (void) { 
