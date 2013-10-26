@@ -134,7 +134,7 @@ for (i=0; i<N_MCP_ROWS; i++) {
       f = xval[i] & (1 << j); /* has the pin changed? */
       if (f) {
         if (x)
-        printf("Pin %d changed! - %d\n", j, x);
+        // printf("Pin %d changed! - %d\n", j, x);
         sendKey(mcp[i].key_char[j], x);
       }
     }
@@ -156,7 +156,7 @@ int main (int argc, char *argv [])
   if(init_uinput() == 0){
     sleep(1);
   }
-  
+
   gpiofd = wiringPiSetup();
 
   if ((q2w = wiringPiI2CSetup (0x20)) == -1)
@@ -197,6 +197,7 @@ int main (int argc, char *argv [])
 
   for (;;)
   {
+    usleep(4000);
 //    printf ("Waiting ... ") ; fflush (stdout) ;
 	}
   // Poll
