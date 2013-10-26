@@ -57,9 +57,9 @@ struct {
   int key;
 } io[] = {
 //    Input    Output (from /usr/include/linux/input.h)
-  { 0,      1     },
-  {  1,      1    },
-  {  5,      1    }
+  { 0,      KEY_LEFT     },
+  {  1,      KEY_RIGHT    },
+  {  5,      KEY_UP    }
 };
 #define IOLEN (sizeof(io) / sizeof(io[0])) // io[] table size
 
@@ -69,6 +69,7 @@ typedef struct{
   int inmask;
   int lastvalue;
   int key_value[N_ROW_PINS]; // -1=unused, 0=low, 1=high
+  int key_char[N_ROW_PINS];
 } mcp_row;
 
 mcp_row mcp[N_MCP_ROWS];
@@ -80,6 +81,7 @@ void register_mcp_keys() {
   for (i=0; i<N_MCP_ROWS; i++) {
     mcp[i].inmask = 0;
     memset(mcp[i].key_value, -1, sizeof(mcp[i].key_value));
+    memset(mcp[i].key_char, -1, sizeof(mcp[i].key_char));
   }
 
   for(i=0; i<IOLEN; i++) {
@@ -88,6 +90,7 @@ void register_mcp_keys() {
     int pin = io[i].pin % N_ROW_PINS;
     mcp[idx].inmask |= 1<<pin;
     mcp[idx].key_value[pin] = 1; // default is high
+    mcp[idx].key_char[pin] = io[i].key;
   }
 
   for (i=0; i<N_MCP_ROWS; i++) {
@@ -129,7 +132,9 @@ for (i=0; i<N_MCP_ROWS; i++) {
       x = !(ival[i] & (1 << j)); /* is the pin high or low? */
       f = xval[i] & (1 << j); /* has the pin changed? */
       if (f) {
+        if (x)
         printf("Pin %d changed! - %d\n", j, x);
+        sendKey(mcp[i].key_char[j], x);
       }
     }
   }
