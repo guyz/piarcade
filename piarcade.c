@@ -90,6 +90,10 @@ void register_mcp_keys() {
     mcp[idx].key_value[pin] = 1; // default is high
   }
 
+  for (i=0; i<N_MCP_ROWS; i++) {
+    mcp[i].lastvalue = mcp[i].inmask;
+  }
+
   printf("Row A=%d, Row B=%d\n", mcp[0].inmask, mcp[1].inmask);
 
   // int j;
@@ -102,16 +106,40 @@ void register_mcp_keys() {
 
 void mcp_interrupt_handler (void) { 
 struct wiringPiNodeStruct *myNode ;
-
+int val[N_MCP_ROWS], ival[N_MCP_ROWS], xval[N_MCP_ROWS] i, j, x, f;
 //if((myNode = wiringPiFindNode (BUTTON_PIN)) == 0) {
 //printf("wiringPiFindNode failed\n\r");
 //exit(0);
 //}
-printf("I've been hit!!\n\r");
-//wiringPiI2CReadReg8(q2w, INTCAPA);
-while (wiringPiI2CReadReg8 (q2w, GPIOA ) != 0x01) {
-//	printf("%d\n", wiringPiI2CReadReg8 (q2w, GPIOA ));
+// printf("I've been hit!!\n\r");
+
+// read values
+val[0] = wiringPiI2CReadReg8 (q2w, GPIOA);
+val[1] = wiringPiI2CReadReg8 (q2w, GPIOB);
+
+ival[0] = wiringPiI2CReadReg8(q2w, GPIOA);
+ival[1] = wiringPiI2CReadReg8(q2w, GPIOB);
+
+// collect events
+for (i=0; i<N_MCP_ROWS; i++) {
+  ival[i] = val[i] & mcp[i].inmask; // current value
+  xval[i] = ival[i] ^ mcp[i].lastvalue; // changes; a bit=1 if value changed
+  for (j=0; j<N_ROW_PINS; j++) {
+    if (mcp[i].key_value[j] > -1) {
+      // pin is enabled
+      x = !(ival[i] & (1 << j)); /* is the pin high or low? */
+      f = xval[i] & (1 << j); /* has the pin changed? */
+      if (f) {
+        printf("Pin %d changed!\n", j)
+      }
+    }
+  }
 }
+
+//wiringPiI2CReadReg8(q2w, INTCAPA);
+// while (wiringPiI2CReadReg8 (q2w, GPIOA ) != 0x01) {
+//	printf("%d\n", wiringPiI2CReadReg8 (q2w, GPIOA ));
+// }
 }
 
 int main (int argc, char *argv [])
