@@ -6,6 +6,7 @@
 #include <math.h>
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
+#include <linux/input.h>
 
 // MCP23S17 Registers
 
@@ -151,6 +152,11 @@ int main (int argc, char *argv [])
   int gpiofd;
   // Init
   register_mcp_keys();
+
+  if(init_uinput() == 0){
+    sleep(1);
+  }
+  
   gpiofd = wiringPiSetup();
 
   if ((q2w = wiringPiI2CSetup (0x20)) == -1)
