@@ -51,13 +51,15 @@
 #define BUTTON_PIN 0
 #define N_MCP_ROWS 2
 #define N_ROW_PINS 8
+
 struct {
   int pin; // 0-15, 0-7 is GPIOA, 8-15 is GPIOB
   int key;
 } io[] = {
 //    Input    Output (from /usr/include/linux/input.h)
   { 0,      1     },
-  {  1,      1    }
+  {  1,      1    },
+  {  5,      1    }
 };
 #define IOLEN (sizeof(io) / sizeof(io[0])) // io[] table size
 
@@ -89,9 +91,16 @@ void register_mcp_keys() {
   }
 
   printf("Row A=%d, Row B=%d\n", mcp[0].inmask, mcp[1].inmask);
+
+  // int j;
+  // for (i=0; i<N_MCP_ROWS; i++) {
+  //   for (j=0; j<N_ROW_PINS; j++) {
+  //     printf("Row=%d, pin=%d, value=%d", i, j, mcp[i].key_value[j]);
+  //   }
+  // }
 }
 
-void myInterrupt5 (void) { 
+void mcp_interrupt_handler (void) { 
 struct wiringPiNodeStruct *myNode ;
 
 //if((myNode = wiringPiFindNode (BUTTON_PIN)) == 0) {
@@ -119,19 +128,22 @@ int main (int argc, char *argv [])
   wiringPiI2CWriteReg8 (q2w, GPINTENB, 0x00); // If BANK == 1, then IOCON_idx == GPINTENB_idx
   wiringPiI2CWriteReg8 (q2w, IOCON, 0x00);
 
-  // Turn off (optional: enable them) interrupt pins
-  wiringPiI2CWriteReg8 (q2w, GPINTENA, 0x03);
-  wiringPiI2CWriteReg8 (q2w, GPINTENB, 0x00);
+  // Enable appropriate interrupt pins
+  wiringPiI2CWriteReg8 (q2w, GPINTENA, mcp[0].inmask);
+  wiringPiI2CWriteReg8 (q2w, GPINTENB, mcp[1].inmask);
 
-  wiringPiI2CWriteReg8 (q2w, INTCONA, 0x03);
-  wiringPiI2CWriteReg8 (q2w, DEFVALA, 0x03);
+  wiringPiI2CWriteReg8 (q2w, INTCONA, mcp[0].inmask);
+  wiringPiI2CWriteReg8 (q2w, INTCONB, mcp[1].inmask);
+
+  wiringPiI2CWriteReg8 (q2w, DEFVALA, mcp[0].inmask);
+  wiringPiI2CWriteReg8 (q2w, DEFVALB, mcp[1].inmask);
 
   // Ensure GPIOs are set to 'input'
-  wiringPiI2CWriteReg8 (q2w, IODIRA, 0x03);
-  wiringPiI2CWriteReg8 (q2w, IODIRB, 0x00);
+  wiringPiI2CWriteReg8 (q2w, IODIRA, mcp[0].inmask);
+  wiringPiI2CWriteReg8 (q2w, IODIRB, mcp[1].inmask);
   // Enable pull-up resistors
-  wiringPiI2CWriteReg8 (q2w, GPPUA, 0x03);
-  wiringPiI2CWriteReg8 (q2w, GPPUB, 0x00);
+  wiringPiI2CWriteReg8 (q2w, GPPUA, mcp[0].inmask);
+  wiringPiI2CWriteReg8 (q2w, GPPUB, mcp[1].inmask);
   // Don't reverse polarity
   wiringPiI2CWriteReg8 (q2w, IPOLA, 0x00);
   wiringPiI2CWriteReg8 (q2w, IPOLB, 0x00);
@@ -139,7 +151,7 @@ int main (int argc, char *argv [])
   wiringPiI2CWriteReg8 (q2w, GPIOA, 0x00);
   wiringPiI2CWriteReg8 (q2w, GPIOB, 0x00);
 
-  if(wiringPiISR(BUTTON_PIN, INT_EDGE_FALLING, &myInterrupt5) < 0 )
+  if(wiringPiISR(BUTTON_PIN, INT_EDGE_FALLING, &mcp_interrupt_handler) < 0 )
   {
     fprintf(stderr, "Could not setup ISR: %s\n", strerror(errno));
     return 1;
