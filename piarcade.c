@@ -106,7 +106,7 @@ void register_mcp_keys() {
 
 void mcp_interrupt_handler (void) { 
 struct wiringPiNodeStruct *myNode ;
-int val[N_MCP_ROWS], ival[N_MCP_ROWS], xval[N_MCP_ROWS] i, j, x, f;
+int val[N_MCP_ROWS], ival[N_MCP_ROWS], xval[N_MCP_ROWS], i, j, x, f;
 //if((myNode = wiringPiFindNode (BUTTON_PIN)) == 0) {
 //printf("wiringPiFindNode failed\n\r");
 //exit(0);
