@@ -81,11 +81,11 @@ void register_mcp_keys() {
 
   for(i=0; i<IOLEN; i++) {
     printf("Configuring pin %d\n", io[i].pin);
-    int idx = (floor(io[i].pin));
+    int idx = (floor(io[i].pin/8));
     mcp[idx].inmask |= 1<<(io[i].pin % 8);
   }
 
-  printf("Row A=%d, Row B=%d", mcp[0].inmask, mcp[0].inmask);
+  printf("Row A=%d, Row B=%d\n", mcp[0].inmask, mcp[0].inmask);
 }
 
 void myInterrupt5 (void) { 
