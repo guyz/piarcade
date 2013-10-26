@@ -111,7 +111,7 @@ int val[N_MCP_ROWS], ival[N_MCP_ROWS], xval[N_MCP_ROWS], i, j, x, f;
 //printf("wiringPiFindNode failed\n\r");
 //exit(0);
 //}
-printf("I've been hit!!\n\r");
+// printf("I've been hit!!\n\r");
 
 // read values
 val[0] = wiringPiI2CReadReg8 (q2w, GPIOA);
@@ -121,7 +121,8 @@ val[1] = wiringPiI2CReadReg8 (q2w, GPIOB);
 for (i=0; i<N_MCP_ROWS; i++) {
   ival[i] = val[i] & mcp[i].inmask; // current value
   xval[i] = ival[i] ^ mcp[i].lastvalue; // changes; a bit=1 if value changed
-  printf("i=%d, val=%d, ival=%d, xval=%d\n", i, val[i], ival[i], xval[i]);
+  mcp[i].lastvalue = ival[i];
+  // printf("i=%d, val=%d, ival=%d, xval=%d\n", i, val[i], ival[i], xval[i]);
   for (j=0; j<N_ROW_PINS; j++) {
     if (mcp[i].key_value[j] > -1) {
       // pin is enabled
