@@ -129,16 +129,16 @@ for (i=0; i<N_MCP_ROWS; i++) {
       x = !(ival[i] & (1 << j)); /* is the pin high or low? */
       f = xval[i] & (1 << j); /* has the pin changed? */
       if (f) {
-        printf("Pin %d changed!\n", j);
+        printf("Pin %d changed - %d!\n", j, x);
       }
     }
   }
 }
 
-//wiringPiI2CReadReg8(q2w, INTCAPA);
-// while (wiringPiI2CReadReg8 (q2w, GPIOA ) != 0x01) {
-//	printf("%d\n", wiringPiI2CReadReg8 (q2w, GPIOA ));
-// }
+while ( (wiringPiI2CReadReg8 (q2w, GPIOA ) != mcp[0].inmask) && (wiringPiI2CReadReg8 (q2w, GPIOA ) != mcp[0].inmask) ) {
+  printf("done\n");
+}
+
 }
 
 int main (int argc, char *argv [])
