@@ -114,10 +114,11 @@ int val[N_MCP_ROWS], ival[N_MCP_ROWS], xval[N_MCP_ROWS], i, j, x, f;
 // printf("I've been hit!!\n\r");
 
 // read values
-val[0] = wiringPiI2CReadReg8 (q2w, GPIOA);
-val[1] = wiringPiI2CReadReg8 (q2w, GPIOB);
+// val[0] = wiringPiI2CReadReg8 (q2w, GPIOA);
+// val[1] = wiringPiI2CReadReg8 (q2w, GPIOB);
 
 // collect events
+while ( (val[0] = wiringPiI2CReadReg8 (q2w, GPIOA ) != mcp[0].inmask) && (val[1] = wiringPiI2CReadReg8 (q2w, GPIOB ) != mcp[1].inmask) ) {
 for (i=0; i<N_MCP_ROWS; i++) {
   ival[i] = val[i] & mcp[i].inmask; // current value
   xval[i] = ival[i] ^ mcp[i].lastvalue; // changes; a bit=1 if value changed
@@ -135,9 +136,9 @@ for (i=0; i<N_MCP_ROWS; i++) {
   }
 }
 
-while ( (wiringPiI2CReadReg8 (q2w, GPIOA ) != mcp[0].inmask) && (wiringPiI2CReadReg8 (q2w, GPIOA ) != mcp[0].inmask) ) {
-  printf("done\n");
 }
+
+printf("Done");
 
 }
 
