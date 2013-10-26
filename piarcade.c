@@ -118,7 +118,6 @@ val[0] = wiringPiI2CReadReg8 (q2w, GPIOA);
 val[1] = wiringPiI2CReadReg8 (q2w, GPIOB);
 
 // collect events
-while ( (val[0] != mcp[0].inmask) && (val[1] != mcp[1].inmask) ) {
 for (i=0; i<N_MCP_ROWS; i++) {
   ival[i] = val[i] & mcp[i].inmask; // current value
   xval[i] = ival[i] ^ mcp[i].lastvalue; // changes; a bit=1 if value changed
@@ -130,19 +129,16 @@ for (i=0; i<N_MCP_ROWS; i++) {
       x = !(ival[i] & (1 << j)); /* is the pin high or low? */
       f = xval[i] & (1 << j); /* has the pin changed? */
       if (f) {
-        printf("Pin %d changed - %d!\n", j, x);
+        printf("Pin %d changed! - %d\n", j, x);
       }
     }
   }
 }
 
-val[0] = wiringPiI2CReadReg8 (q2w, GPIOA);
-val[1] = wiringPiI2CReadReg8 (q2w, GPIOB);
-
-}
-
-printf("Done");
-
+//wiringPiI2CReadReg8(q2w, INTCAPA);
+// while (wiringPiI2CReadReg8 (q2w, GPIOA ) != 0x01) {
+//	printf("%d\n", wiringPiI2CReadReg8 (q2w, GPIOA ));
+// }
 }
 
 int main (int argc, char *argv [])
