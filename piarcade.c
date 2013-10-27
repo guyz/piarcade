@@ -137,9 +137,10 @@ for (i=0; i<N_MCP_ROWS; i++) {
    //    printf("Pin %d, x=%d, f=%d \n", j, x, f);
       if (f) {
 //          printf("Pin %d changed! - %d, x=%d\n", j, f, x);
-      //  if (x) {
-          sendKey(mcp[i].key_char[j], x);
-      //  }
+        sendKey(mcp[i].key_char[j], x);
+       if (x) {
+          sendKey(mcp[i].key_char[j], 0);
+       }
       }
     }
   }
