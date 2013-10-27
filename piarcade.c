@@ -138,9 +138,9 @@ for (i=0; i<N_MCP_ROWS; i++) {
       if (f) {
 //          printf("Pin %d changed! - %d, x=%d\n", j, f, x);
         sendKey(mcp[i].key_char[j], x);
-       if (x) {
-          sendKey(mcp[i].key_char[j], 0);
-       }
+       // if (x) {
+          // sendKey(mcp[i].key_char[j], 0);
+       // }
       }
     }
   }
@@ -194,7 +194,7 @@ int main (int argc, char *argv [])
   wiringPiI2CWriteReg8 (q2w, GPIOA, 0x00);
   wiringPiI2CWriteReg8 (q2w, GPIOB, 0x00);
 
-  if(wiringPiISR(BUTTON_PIN, INT_EDGE_FALLING, &mcp_interrupt_handler) < 0 )
+  if(wiringPiISR(BUTTON_PIN, INT_EDGE_BOTH, &mcp_interrupt_handler) < 0 )
   {
     fprintf(stderr, "Could not setup ISR: %s\n", strerror(errno));
     return 1;
