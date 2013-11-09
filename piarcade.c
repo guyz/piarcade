@@ -209,6 +209,8 @@ int main (int argc, char *argv [])
     // usleep(4000);
     delayMicroseconds(4000);
 //    printf ("Waiting ... ") ; fflush (stdout) ;
+    wiringPiI2CReadReg8 (q2w, GPIOA);
+    wiringPiI2CReadReg8 (q2w, GPIOB);
 	}
   // Poll
 /*
