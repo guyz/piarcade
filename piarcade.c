@@ -62,10 +62,10 @@ struct {
   {  1,      KEY_DOWN    },
   {  2,      KEY_RIGHT    },
   {  3,      KEY_UP    },
-  {  12,      KEY_D    },
-  {  9,      KEY_F    },
-  {  10,      KEY_G    },
-  {  11,      KEY_R    }
+  {  4,      KEY_D    },
+  {  5,      KEY_F    },
+  {  6,      KEY_G    },
+  {  7,      KEY_R    }
 
 };
 #define IOLEN (sizeof(io) / sizeof(io[0])) // io[] table size
