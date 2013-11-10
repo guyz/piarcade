@@ -65,7 +65,9 @@ struct {
   {  4,      KEY_D    },
   {  5,      KEY_F    },
   {  6,      KEY_G    },
-  {  7,      KEY_R    }
+  {  7,      KEY_R    },
+  {  14,      KEY_1    },
+  {  15,      KEY_2    }
 
 };
 #define IOLEN (sizeof(io) / sizeof(io[0])) // io[] table size
