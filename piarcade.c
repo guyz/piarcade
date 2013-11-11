@@ -94,7 +94,7 @@ void register_mcp_keys() {
   }
 
   for(i=0; i<IOLEN; i++) {
-    printf("Configuring pin %d\n", io[i].pin);
+    // printf("Configuring pin %d\n", io[i].pin);
     int idx = (floor(io[i].pin/N_ROW_PINS));
     int pin = io[i].pin % N_ROW_PINS;
     mcp[idx].inmask |= 1<<pin;
@@ -106,24 +106,13 @@ void register_mcp_keys() {
     mcp[i].lastvalue = mcp[i].inmask;
   }
 
-  printf("Row A=%d, Row B=%d\n", mcp[0].inmask, mcp[1].inmask);
+  // printf("Row A=%d, Row B=%d\n", mcp[0].inmask, mcp[1].inmask);
 
-  // int j;
-  // for (i=0; i<N_MCP_ROWS; i++) {
-  //   for (j=0; j<N_ROW_PINS; j++) {
-  //     printf("Row=%d, pin=%d, value=%d", i, j, mcp[i].key_value[j]);
-  //   }
-  // }
 }
 
 void mcp_interrupt_handler (void) { 
 struct wiringPiNodeStruct *myNode ;
 int val[N_MCP_ROWS], ival[N_MCP_ROWS], xval[N_MCP_ROWS], i, j, x, f;
-//if((myNode = wiringPiFindNode (BUTTON_PIN)) == 0) {
-//printf("wiringPiFindNode failed\n\r");
-//exit(0);
-//}
-// printf("I've been hit!!\n\r");
 
 // read values
 val[0] = wiringPiI2CReadReg8 (q2w, GPIOA);
@@ -152,10 +141,6 @@ for (i=0; i<N_MCP_ROWS; i++) {
   }
 }
 
-//wiringPiI2CReadReg8(q2w, INTCAPA);
-// while (wiringPiI2CReadReg8 (q2w, GPIOA ) != 0x01) {
-//	printf("%d\n", wiringPiI2CReadReg8 (q2w, GPIOA ));
-// }
 }
 
 int main (int argc, char *argv [])
@@ -208,23 +193,11 @@ int main (int argc, char *argv [])
 
   for (;;)
   {
-    // usleep(4000);
     delayMicroseconds(4000);
 //    printf ("Waiting ... ") ; fflush (stdout) ;
     wiringPiI2CReadReg8 (q2w, GPIOA);
     wiringPiI2CReadReg8 (q2w, GPIOB);
 	}
-  // Poll
-/*
-  int byte_a;
-  int byte_b;
-  for (;;)
-  {
-    byte_a = wiringPiI2CReadReg8 (q2w, GPIOA);
-    byte_b = wiringPiI2CReadReg8 (q2w, GPIOA);
-    printf("a=%d, b=%d\n", byte_a, byte_b);
-    delay (500);
-  }
-  */
+
   return 0 ;
 }
