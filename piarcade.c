@@ -137,6 +137,7 @@ for (i=0; i<N_MCP_ROWS; i++) {
           // sendKey(mcp[i].key_char[j], 0);
        // }
       }
+      delayMicroseconds(4000);
     }
   }
 }
@@ -193,7 +194,7 @@ int main (int argc, char *argv [])
 
   for (;;)
   {
-    delayMicroseconds(4000);
+    delayMicroseconds(20000);
 //    printf ("Waiting ... ") ; fflush (stdout) ;
     wiringPiI2CReadReg8 (q2w, GPIOA);
     wiringPiI2CReadReg8 (q2w, GPIOB);
