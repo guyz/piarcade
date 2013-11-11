@@ -1,11 +1,15 @@
-EXECS = piarcade
 CC    = gcc -I/usr/local/include -L/usr/local/lib -lm -lwiringPi
 
-all: $(EXECS)
+all: piarcade
 
-piarcade: piarcade.c
-	$(CC) $< -o $@
-	strip $@
+piarcade: uinput.o piarcade.o
+	$(CC) uinput.o piarcade.o -o piarcade
+
+piarcade.o: piarcade.c
+	$(CC) -c piarcade.c
+
+uinput.o: uinput.c
+	$(CC) -c uinput.c
 
 clean:
-	rm -f $(EXECS)
+	rm -rf *o piarcade
