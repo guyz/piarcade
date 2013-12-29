@@ -7,6 +7,7 @@
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 #include <linux/input.h>
+#include <time.h>
 
 // MCP23S17 Registers
 
@@ -52,6 +53,8 @@
 #define BUTTON_PIN 0
 #define N_MCP_ROWS 2
 #define N_ROW_PINS 8
+#define ESC_COMBO_PIN_1 14
+#define ESC_COMBO_PIN_2 15 // Holding both ESC combo keys will map to ESC
 
 struct {
   int pin; // 0-15, 0-7 is GPIOA, 8-15 is GPIOB
@@ -83,6 +86,16 @@ typedef struct{
 
 mcp_row mcp[N_MCP_ROWS];
 
+typedef struct{
+  int n_active; // number of concurrent keys required to activate
+  int t_delay; // hold threshold in seconds
+  int values[N_ROW_PINS];
+  clock_t start_time;
+  int key;
+} special_event_context;
+
+special_event_context esc_event;
+
 int q2w;
 
 void register_mcp_keys() {  
@@ -110,6 +123,55 @@ void register_mcp_keys() {
 
 }
 
+void register_special_events() {
+  esc_event.n_active = 2;
+  esc_event.t_delay = 3;
+  esc_event.key = KEY_ESC;
+  memset(esc_event.values, 0, sizeof(esc_event.values));
+}
+
+void handle_esc(int i, int j, int x, int f) {
+  int i, pinidx, status, prev, next;
+  clock_t t;
+  double dt;
+  pinidx = i*N_ROW_PINS + j;
+  
+  // Change pins and start/stop an event timer
+  if (f && (pinidx == ESC_COMBO_PIN_1 || pinidx == ESC_COMBO_PIN_2)) {
+    prev = esc_event.values[0] + esc_event.values[1];
+    
+    if (pinidx == ESC_COMBO_PIN_1) {
+      esc_event.values[0] = x;
+    } else {
+      esc_event.values[1] = x;
+    }
+
+    next = esc_event.values[0] + esc_event.values[1];
+
+    if (prev == 2 && next < 2) {
+      // stop event
+      esc_event.start_time = 0;
+    } else if (prev < 2 && next == 2) {
+      // start event
+      esc_event.start_time = clock();
+    }
+  }
+
+  // Test if event timer has reached threshold
+  if (esc_event.start_time > 0) {
+    t = clock();
+    dt = (double)(t - esc_event.start_time) / CLOCKS_PER_SEC;
+    if (dt > (double) esc_event.t_delay) {
+      sendKey(esc_event.key, x);
+      esc_event.start_time = 0;
+      esc_event.values[0] = 0;
+      esc_event.values[1] = 0;
+      printf("Escape clicked! held thres = %f\n", dt);
+    }
+  }
+
+}
+
 void mcp_interrupt_handler (void) { 
 struct wiringPiNodeStruct *myNode ;
 int val[N_MCP_ROWS], ival[N_MCP_ROWS], xval[N_MCP_ROWS], i, j, x, f;
@@ -133,10 +195,9 @@ for (i=0; i<N_MCP_ROWS; i++) {
       if (f) {
 //          printf("Pin %d changed! - %d, x=%d\n", j, f, x);
         sendKey(mcp[i].key_char[j], x);
-       // if (x) {
-          // sendKey(mcp[i].key_char[j], 0);
-       // }
       }
+
+      handle_esc(i, j, x, f);
       delayMicroseconds(4000);
     }
   }
@@ -149,7 +210,7 @@ int main (int argc, char *argv [])
   int gpiofd;
   // Init
   register_mcp_keys();
-
+  register_special_events();
   if(init_uinput() == 0){
     sleep(1);
   }
