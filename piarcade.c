@@ -55,6 +55,8 @@
 #define N_ROW_PINS 8
 #define ESC_COMBO_PIN_1 14
 #define ESC_COMBO_PIN_2 15 // Holding both ESC combo keys will map to ESC
+#define COIN_COMBO_PIN_1 1
+#define COIN_COMBO_PIN_2 5 // Holding both COIN combo keys will map to 5 which should be set as the coin button
 
 struct {
   int pin; // 0-15, 0-7 is GPIOA, 8-15 is GPIOB
@@ -95,6 +97,7 @@ typedef struct{
 } special_event_context;
 
 special_event_context esc_event;
+special_event_context coin_event;
 
 int q2w;
 
@@ -128,47 +131,60 @@ void register_special_events() {
   esc_event.t_delay = 3;
   esc_event.key = KEY_ESC;
   memset(esc_event.values, 0, sizeof(esc_event.values));
+
+  coin_event.n_active = 2;
+  coin_event.t_delay = 0;
+  coin_event.key = KEY_5;
+  memset(coin_event.values, 0, sizeof(coin_event.values));
 }
 
-void handle_esc(int i, int j, int x, int f) {
+void handle_multi_event(special_event_context *e, int pin1, int pin2, int i, int j, int x, int f) {
   int pinidx, status, prev, next, dt;
   time_t t;
   pinidx = i*N_ROW_PINS + j;
   
   // Change pins and start/stop an event timer
-  if ((pinidx == ESC_COMBO_PIN_1 || pinidx == ESC_COMBO_PIN_2)) {
-    prev = esc_event.values[0] + esc_event.values[1];
+  if ((pinidx == pin1 || pinidx == pin2)) {
+    prev = (*e).values[0] + (*e).values[1];
     
-    if (pinidx == ESC_COMBO_PIN_1) {
-      esc_event.values[0] = x;
+    if (pinidx == pin1) {
+      (*e).values[0] = x;
     } else {
-      esc_event.values[1] = x;
+      (*e).values[1] = x;
     }
 
-    next = esc_event.values[0] + esc_event.values[1];
+    next = (*e).values[0] + (*e).values[1];
 
     if (prev == 2 && next < 2) {
       // stop event
-      esc_event.start_time = 0;
+      (*e).start_time = 0;
     } else if (prev < 2 && next == 2) {
       // start event
-      esc_event.start_time = time(NULL);
+      (*e).start_time = time(NULL);
     }
   }
 
   // Test if event timer has reached threshold
-  if (esc_event.start_time > 0) {
+  if ((*e).start_time > 0) {
     t = time(NULL);
-    dt = (t - esc_event.start_time);
-    if (dt >= esc_event.t_delay) {
-      sendKey(esc_event.key, x);
-      esc_event.start_time = 0;
-      esc_event.values[0] = 0;
-      esc_event.values[1] = 0;
+    dt = (t - (*e).start_time);
+    if (dt >= (*e).t_delay) {
+      sendKey((*e).key, x);
+      (*e).start_time = 0;
+      (*e).values[0] = 0;
+      (*e).values[1] = 0;
       // printf("Escape clicked! held thres = %f\n", dt);
     }
   }
 
+}
+
+void handle_coin(int i, int j, int x, int f) {
+  handle_multi_event(&coin_event, COIN_COMBO_PIN_1, COIN_COMBO_PIN_2, i, j, x, f);
+}
+
+void handle_esc(int i, int j, int x, int f) {
+  handle_multi_event(&esc_event, ESC_COMBO_PIN_1, ESC_COMBO_PIN_2, i, j, x, f);
 }
 
 void mcp_interrupt_handler (void) { 
