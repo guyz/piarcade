@@ -173,7 +173,7 @@ void handle_multi_event(special_event_context *e, int pin1, int pin2, int i, int
       (*e).start_time = 0;
       (*e).values[0] = 0;
       (*e).values[1] = 0;
-      // printf("Escape clicked! held thres = %f\n", dt);
+      // printf("Escape clicked! held thres = %d\n", dt);
     }
   }
 
@@ -212,6 +212,7 @@ for (i=0; i<N_MCP_ROWS; i++) {
         sendKey(mcp[i].key_char[j], x);
       }
 
+      handle_coin(i, j, x, f);
       handle_esc(i, j, x, f);
       delayMicroseconds(4000);
     }
