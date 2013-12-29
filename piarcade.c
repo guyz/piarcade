@@ -131,9 +131,8 @@ void register_special_events() {
 }
 
 void handle_esc(int i, int j, int x, int f) {
-  int pinidx, status, prev, next;
+  int pinidx, status, prev, next, dt;
   time_t t;
-  double dt;
   pinidx = i*N_ROW_PINS + j;
   
   // Change pins and start/stop an event timer
@@ -161,12 +160,12 @@ void handle_esc(int i, int j, int x, int f) {
   if (esc_event.start_time > 0) {
     t = time(NULL);
     dt = (t - esc_event.start_time);
-    if (dt > (double) esc_event.t_delay) {
+    if (dt >= esc_event.t_delay) {
       sendKey(esc_event.key, x);
       esc_event.start_time = 0;
       esc_event.values[0] = 0;
       esc_event.values[1] = 0;
-      printf("Escape clicked! held thres = %f\n", dt);
+      // printf("Escape clicked! held thres = %f\n", dt);
     }
   }
 
