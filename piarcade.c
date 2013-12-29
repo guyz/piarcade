@@ -90,7 +90,7 @@ typedef struct{
   int n_active; // number of concurrent keys required to activate
   int t_delay; // hold threshold in seconds
   int values[N_ROW_PINS];
-  clock_t start_time;
+  time_t start_time;
   int key;
 } special_event_context;
 
@@ -131,13 +131,13 @@ void register_special_events() {
 }
 
 void handle_esc(int i, int j, int x, int f) {
-  int i, pinidx, status, prev, next;
-  clock_t t;
+  int pinidx, status, prev, next;
+  time_t t;
   double dt;
   pinidx = i*N_ROW_PINS + j;
   
   // Change pins and start/stop an event timer
-  if (f && (pinidx == ESC_COMBO_PIN_1 || pinidx == ESC_COMBO_PIN_2)) {
+  if ((pinidx == ESC_COMBO_PIN_1 || pinidx == ESC_COMBO_PIN_2)) {
     prev = esc_event.values[0] + esc_event.values[1];
     
     if (pinidx == ESC_COMBO_PIN_1) {
@@ -153,14 +153,14 @@ void handle_esc(int i, int j, int x, int f) {
       esc_event.start_time = 0;
     } else if (prev < 2 && next == 2) {
       // start event
-      esc_event.start_time = clock();
+      esc_event.start_time = time(NULL);
     }
   }
 
   // Test if event timer has reached threshold
   if (esc_event.start_time > 0) {
-    t = clock();
-    dt = (double)(t - esc_event.start_time) / CLOCKS_PER_SEC;
+    t = time(NULL);
+    dt = (t - esc_event.start_time);
     if (dt > (double) esc_event.t_delay) {
       sendKey(esc_event.key, x);
       esc_event.start_time = 0;
